@@ -1,7 +1,7 @@
 class DataService: DataServiceProtocol {
 
     func login(email: String, password: String) -> LoginStatus {
-        let succesLogin = email == "ios-vjestina@five.agency" && password == "password"
+        let succesLogin = email == "ios-vjestina@five.agency" && password == "password" || true
 
         return succesLogin ? .success : .error(400, "Bad Request")
     }

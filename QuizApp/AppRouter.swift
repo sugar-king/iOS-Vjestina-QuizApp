@@ -4,6 +4,7 @@ import UIKit
 protocol AppRouterProtocol {
     func setStartScreen(in window: UIWindow?)
     func showQuizzesController()
+    func showQuizController(quiz: Quiz)
 }
 class AppRouter: AppRouterProtocol {
     private var navigationController: UINavigationController!
@@ -20,5 +21,11 @@ class AppRouter: AppRouterProtocol {
     func showQuizzesController() {
         let vc = QuizzesViewController(router: self)
         navigationController.setViewControllers([vc], animated: true)
+    }
+    
+    func showQuizController(quiz: Quiz) {
+        navigationController.isNavigationBarHidden = false
+        let vc = QuizViewController(router: self, quiz: quiz)
+        navigationController.pushViewController(vc, animated: true)
     }
 }

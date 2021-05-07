@@ -18,11 +18,23 @@ class QuizzesViewController: UIViewController {
     var tableView: UITableView!
     
     var dataService = DataService()
-    var quizzes: [String: [Quiz]] = Dictionary()
+    var quizzes: [String: [Quiz]] = [:]
     var categories: [QuizCategory] = []
+    
+    let router: AppRouterProtocol
+    
+    init(router: AppRouterProtocol) {
+       self.router = router
+       super.init(nibName: nil, bundle: nil)
+   }
+   
+   required init?(coder: NSCoder) {
+       fatalError("init(coder:) has not been implemented")
+   }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         buildView()
         defineLayoutForViews()
         styleView()
@@ -52,11 +64,7 @@ class QuizzesViewController: UIViewController {
             $0.bottom.equalToSuperview()
             $0.centerX.equalToSuperview()
             $0.leading.trailing.equalToSuperview().inset(50)
-        }
-        
-        
-        
-        
+        }        
     }
     
     private func buildView() {
@@ -74,11 +82,7 @@ class QuizzesViewController: UIViewController {
         factText.numberOfLines = 4
         view.addSubview(factText)
                 
-        tableView = UITableView(frame:CGRect(
-                                            x: 0,
-                                            y: 0,
-                                            width: view.bounds.width,
-                                            height: view.bounds.height))
+        tableView = UITableView(frame:.zero)
         view.addSubview(tableView)
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: cellIdentifier)
         tableView.dataSource = self
@@ -104,7 +108,7 @@ class QuizzesViewController: UIViewController {
             .filter { $0.contains("NBA")}
             .count
         
-        factText.text = "There are " + String(factNumber) + " questions that contain the word \"NBA\""
+        factText.text = "There are \(factNumber) questions that contain the word \"NBA\""
         
         tableView.reloadData()
     }

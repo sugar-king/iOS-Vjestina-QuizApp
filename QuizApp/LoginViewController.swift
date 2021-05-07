@@ -11,13 +11,24 @@ import SnapKit
 class LoginViewController: UIViewController {
     
     var titleLabel: UILabel!
-    var loginButton: UIButton!
+    var stackView: UIStackView!
     var emailField: UITextField!
     var passwordField: UITextField!
-    var stackView: UIStackView!
+    var loginButton: UIButton!
+    let backgroundColor = UIColor.systemBlue
+    let textColor = UIColor.white
+    let router: AppRouterProtocol
     
     var dataService: DataService!
     
+     init(router: AppRouterProtocol) {
+        self.router = router
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,6 +42,8 @@ class LoginViewController: UIViewController {
     
     
     private func buildView(){
+        navigationItem.title = "Login"
+        
         titleLabel = UILabel()
         view.addSubview(titleLabel)
         titleLabel.text = "QuizApp"
@@ -70,16 +83,18 @@ class LoginViewController: UIViewController {
         switch response{
         case .success:
             print("Email: " + self.emailField.text! + ", password: " +  self.passwordField.text!)
-            break
+            router.showQuizzesController()
         default:
             print(response)
         }
     }
     
     private func styleView(){
-        view.backgroundColor = .systemBlue
+        navigationController?.navigationBar.barTintColor = backgroundColor
         
-        titleLabel.textColor = .white
+        view.backgroundColor = backgroundColor
+        
+        titleLabel.textColor = textColor
         titleLabel.font = titleLabel.font.withSize(70)
         
         emailField.backgroundColor = .white
@@ -87,14 +102,18 @@ class LoginViewController: UIViewController {
         passwordField.backgroundColor = .white
         
         loginButton.backgroundColor = .white
-        loginButton.setTitleColor(.systemBlue, for: .normal)
+        loginButton.setTitleColor(backgroundColor, for: .normal)
         loginButton.clipsToBounds = true
         
     }
     
     private func defineLayoutForViews() {
-        emailField.heightAnchor.constraint(equalToConstant: 25).isActive = true
-        passwordField.heightAnchor.constraint(equalToConstant: 25).isActive = true
+        emailField.snp.makeConstraints {
+            $0.height.equalTo(25)
+        }
+        passwordField.snp.makeConstraints {
+            $0.height.equalTo(25)
+        }
         
         stackView.spacing = 20
         stackView.snp.makeConstraints {

@@ -40,7 +40,6 @@ class LoginViewController: UIViewController {
         dataService = DataService()
     }
     
-    
     private func buildView(){
         navigationItem.title = "Login"
         
@@ -56,7 +55,7 @@ class LoginViewController: UIViewController {
         view.addSubview(stackView)
         
         emailField = UITextField()
-        emailField.placeholder = "Email"
+        emailField.placeholder = "  Email"
         emailField.delegate = self
         emailField.returnKeyType = .next
         emailField.keyboardType = UIKeyboardType.emailAddress
@@ -64,7 +63,7 @@ class LoginViewController: UIViewController {
         
         
         passwordField = UITextField()
-        passwordField.placeholder = "Password"
+        passwordField.placeholder = "  Password"
         passwordField.delegate = self
         passwordField.returnKeyType = .done
         passwordField.isSecureTextEntry = true
@@ -83,7 +82,7 @@ class LoginViewController: UIViewController {
         switch response{
         case .success:
             print("Email: " + self.emailField.text! + ", password: " +  self.passwordField.text!)
-            router.showQuizzesController()
+            router.showHomeController()
         default:
             print(response)
         }
@@ -109,11 +108,19 @@ class LoginViewController: UIViewController {
     
     private func defineLayoutForViews() {
         emailField.snp.makeConstraints {
-            $0.height.equalTo(25)
+            $0.height.equalTo(40)
         }
         passwordField.snp.makeConstraints {
-            $0.height.equalTo(25)
+            $0.height.equalTo(40)
         }
+        
+        loginButton.snp.makeConstraints {
+            $0.height.equalTo(40)
+        }
+        
+        emailField.layer.cornerRadius = 20
+        passwordField.layer.cornerRadius = 20
+        loginButton.layer.cornerRadius = 20
         
         stackView.spacing = 20
         stackView.snp.makeConstraints {

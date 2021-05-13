@@ -40,7 +40,9 @@ class QuizzesViewController: UIViewController {
             $0.top.equalToSuperview().offset(60)
             $0.centerX.equalToSuperview()
             $0.leading.trailing.equalToSuperview().inset(50)
+            $0.height.equalTo(40)
         }
+        loadButton.layer.cornerRadius = 20
         
         factLabel.snp.makeConstraints {
             $0.top.equalTo(loadButton.snp.bottom).offset(20)
@@ -90,6 +92,10 @@ class QuizzesViewController: UIViewController {
         collectionView.dataSource = self
         collectionView.delegate = self
         
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        navigationController?.navigationBar.isHidden = true
     }
     
     @objc private func loadQuizzes() {
@@ -150,7 +156,6 @@ extension QuizzesViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ tableView: UICollectionView, titleForHeaderInSection section: Int) -> String? {
-        print("HA")
         return categories[section].rawValue.uppercased()
     }
     

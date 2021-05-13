@@ -1,15 +1,18 @@
 import Foundation
 import UIKit
 
+
 class QuizViewController : UIViewController {
     
     let router: AppRouterProtocol
     let quiz: Quiz
     
+    var currentQuestion = 1
+    
     var questionNumberLabel: UILabel!
+    var progressTracker: QuestionTrackerView!
     var questionPages: UIPageViewController!
-    var results: [Bool] = []
-    var bars: [UIView] = []
+    var results = 0
     
     init(router: AppRouterProtocol, quiz: Quiz) {
         self.router = router
@@ -21,37 +24,61 @@ class QuizViewController : UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     override func viewDidLoad() {
-        view.backgroundColor = .green
-        let numberOfQuestion = quiz.questions.count
-        print(numberOfQuestion)
-        for i in 1...numberOfQuestion {
-            let rect = UIView()
-            rect.backgroundColor = .white
-            rect.alpha = 0.5
-            print(rect)
-            bars.append(rect)
-            view.addSubview(rect)
-            if i == 1 {
-                rect.alpha = 1
-                rect.snp.makeConstraints {
-                    $0.top.equalToSuperview().offset(100)
-                    $0.height.equalTo(10)
-                    $0.leading.equalToSuperview().offset(10)
-                    $0.width.equalTo(50)
-                }
-            } else {
-                rect.snp.makeConstraints {
-                    $0.top.equalTo(bars[i-2].snp.top)
-                    $0.height.equalTo(bars[i-2].snp.height)
-                    $0.leading.equalTo(bars[i-2].snp.trailing).offset(10)
-                    $0.width.equalTo(bars[i-2].snp.width)
-                }
-            }
+        view.backgroundColor = .systemBlue
+        
+        buildViews()
+    }
+    override func viewDidAppear(_ animated: Bool) {
     }
     
-}
-    override func viewDidAppear(_ animated: Bool) {
-        print(bars[0])
+    func buildViews() {
+        questionNumberLabel = UILabel()
+        view.addSubview(questionNumberLabel)
+        
+        questionNumberLabel.text = "\(currentQuestion)/\(quiz.questions.count)"
+        questionNumberLabel.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(100)
+            $0.leading.equalToSuperview().offset(10)
+        }
+        
+        progressTracker = QuestionTrackerView(quiz.questions.count)
+        view.addSubview(progressTracker)
+        
+        progressTracker.snp.makeConstraints {
+            $0.top.equalTo(questionNumberLabel.snp.bottom).offset(10)
+            $0.width.equalToSuperview().inset(20)
+            $0.height.equalTo(15)
+            $0.centerX.equalToSuperview()
+        }
+        questionPages = QuizPageViewController(quiz, answerQuestion)
+        view.addSubview(questionPages.view)
+        addChild(questionPages)
+        questionPages.didMove(toParent: self)
+        
+        
+        questionPages.view.snp.makeConstraints {
+            $0.top.equalTo(progressTracker.snp.bottom).offset(5)
+            $0.width.equalToSuperview()
+            $0.bottom.equalToSuperview().inset(20)
+        }
+        
+        
+        
     }
-
+    
+    func answerQuestion(_ correct: Bool) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5,
+                                      execute: { [self] in
+                                        results += correct ? 1 : 0
+                                        if currentQuestion == quiz.questions.count {
+                                            router.showQuizResults(correct: results, of: quiz.questions.count)
+                                            return
+                                        } else {
+                                            currentQuestion += 1
+                                            progressTracker.answerQuestion(correct)
+                                        }
+                                      })
+        }
 }
+
+

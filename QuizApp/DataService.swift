@@ -16,46 +16,46 @@ class DataService: DataServiceProtocol {
                 level: 1,
                 imageUrl: "https://www.publicdomainpictures.net/pictures/300000/velka/football-strategy.jpg",
                 questions: [
-                    Question(
-                        id: 31,
-                        question: "Which team won the NBA title in 2011?",
-                        answers: [
-                            "Dallas Mavericks",
-                            "Miami Heat",
-                            "Houston Rockets",
-                            "Boston Celtics"
-                        ],
-                        correctAnswer: 0),
-                    Question(
-                        id: 32,
-                        question: "What is the perimeter of the football ball (in cm)?",
-                        answers: [
-                            "56-58",
-                            "60-62",
-                            "68-70",
-                            "74-76"
-                        ],
-                        correctAnswer: 2),
-                    Question(
-                        id: 33,
-                        question: "Who was the most famous Croatian basketball player in the NBA?",
-                        answers: [
-                            "Dario Saric",
-                            "Drazen Petrovic",
-                            "Bojan Bogdanovic",
-                            "Dino Radja"
-                        ],
-                        correctAnswer: 1),
-                    Question(
-                        id: 34,
-                        question: "The first season of the Formula 1 race was in...",
-                        answers: [
-                            "1948",
-                            "1950",
-                            "1952",
-                            "1954"
-                        ],
-                        correctAnswer: 1),
+//                    Question(
+//                        id: 31,
+//                        question: "Which team won the NBA title in 2011?",
+//                        answers: [
+//                            "Dallas Mavericks",
+//                            "Miami Heat",
+//                            "Houston Rockets",
+//                            "Boston Celtics"
+//                        ],
+//                        correctAnswer: 0),
+//                    Question(
+//                        id: 32,
+//                        question: "What is the perimeter of the football ball (in cm)?",
+//                        answers: [
+//                            "56-58",
+//                            "60-62",
+//                            "68-70",
+//                            "74-76"
+//                        ],
+//                        correctAnswer: 2),
+//                    Question(
+//                        id: 33,
+//                        question: "Who was the most famous Croatian basketball player in the NBA?",
+//                        answers: [
+//                            "Dario Saric",
+//                            "Drazen Petrovic",
+//                            "Bojan Bogdanovic",
+//                            "Dino Radja"
+//                        ],
+//                        correctAnswer: 1),
+//                    Question(
+//                        id: 34,
+//                        question: "The first season of the Formula 1 race was in...",
+//                        answers: [
+//                            "1948",
+//                            "1950",
+//                            "1952",
+//                            "1954"
+//                        ],
+//                        correctAnswer: 1),
                     Question(
                         id: 35,
                         question: "What year did the Mediterranean Games take place in Split?",

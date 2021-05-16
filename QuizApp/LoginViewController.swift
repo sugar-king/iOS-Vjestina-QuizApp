@@ -19,9 +19,9 @@ class LoginViewController: UIViewController {
     let textColor = UIColor.white
     let router: AppRouterProtocol
     
-    var dataService: DataService!
+    var dataService: NetworkServiceProtocol!
     
-     init(router: AppRouterProtocol) {
+    init(router: AppRouterProtocol) {
         self.router = router
         super.init(nibName: nil, bundle: nil)
     }
@@ -37,7 +37,7 @@ class LoginViewController: UIViewController {
         defineLayoutForViews()
         styleView()
         
-        dataService = DataService()
+        dataService = NetworkService()
     }
     
     private func buildView(){
@@ -55,18 +55,20 @@ class LoginViewController: UIViewController {
         view.addSubview(stackView)
         
         emailField = UITextField()
-        emailField.placeholder = "  Email"
+        emailField.placeholder = "Email"
         emailField.delegate = self
         emailField.returnKeyType = .next
         emailField.keyboardType = UIKeyboardType.emailAddress
+        emailField.setLeftPaddingPoints(10)
         stackView.addArrangedSubview(emailField)
         
         
         passwordField = UITextField()
-        passwordField.placeholder = "  Password"
+        passwordField.placeholder = "Password"
         passwordField.delegate = self
         passwordField.returnKeyType = .done
         passwordField.isSecureTextEntry = true
+        passwordField.setLeftPaddingPoints(10)
         stackView.addArrangedSubview(passwordField)
         
         loginButton = UIButton()
@@ -78,13 +80,30 @@ class LoginViewController: UIViewController {
     }
     
     @objc private func login() {
-        let response = self.dataService.login(email: self.emailField.text!, password: self.passwordField.text!)
-        switch response{
-        case .success:
-            print("Email: " + self.emailField.text! + ", password: " +  self.passwordField.text!)
-            router.showHomeController()
-        default:
-            print(response)
+        
+        dataService.login(email: emailField.text!, password: passwordField.text!) {
+            response in
+
+            switch response{
+            case .success:
+                DispatchQueue.main.async {
+                    self.router.showHomeController()
+                }
+            case .error(let code, _):
+                if code == 1 {
+                    DispatchQueue.main.async {
+                        let alert = UIAlertController(title: "No network connection.", message: "", preferredStyle: .alert)
+                        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                        self.present(alert, animated: true, completion: nil)
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        let alert = UIAlertController(title: "Login failed", message: "", preferredStyle: .alert)
+                        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                        self.present(alert, animated: true, completion: nil)
+                    }
+                }
+            }
         }
     }
     

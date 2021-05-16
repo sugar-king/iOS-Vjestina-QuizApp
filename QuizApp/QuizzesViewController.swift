@@ -12,7 +12,7 @@ class QuizzesViewController: UIViewController {
     var factText: UILabel!
     var collectionView: UICollectionView!
     
-    var dataService = DataService()
+    var dataService = NetworkService()
     var quizzes: [String: [Quiz]] = [:]
     var categories: [QuizCategory] = []
     
@@ -88,7 +88,7 @@ class QuizzesViewController: UIViewController {
         
         collectionView.register(QuizCell.self, forCellWithReuseIdentifier: cellIdentifier)
         self.collectionView.register(UICollectionReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: self.headerID)
-
+        
         collectionView.dataSource = self
         collectionView.delegate = self
         
@@ -99,28 +99,41 @@ class QuizzesViewController: UIViewController {
     }
     
     @objc private func loadQuizzes() {
-        collectionView.backgroundColor = .white
-        let quizArray = dataService.fetchQuizes()
-        quizzes = Dictionary()
-        
-        for quiz in quizArray {
-            if quizzes[quiz.category.rawValue] == nil {
-                quizzes[quiz.category.rawValue] = Array()
+        dataService.fetchQuizzes() { quizArray, error in
+            if error != nil && error == .clientError {
+                DispatchQueue.main.async { [self] in
+                    let alert = UIAlertController(title: "No internet connection!", message: "Could not load quizzes.", preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                    self.present(alert, animated: true, completion: nil)
+                }
+                return
             }
-            quizzes[quiz.category.rawValue]?.append(quiz)
+            DispatchQueue.main.async { [self] in
+                collectionView.backgroundColor = .white
+                quizzes = Dictionary()
+                guard let quizArray = quizArray else {return}
+                for quiz in quizArray {
+                    if quizzes[quiz.category.rawValue] == nil {
+                        quizzes[quiz.category.rawValue] = Array()
+                    }
+                    quizzes[quiz.category.rawValue]?.append(quiz)
+                }
+                
+                categories = Array(Set(quizArray.map({$0.category}))).sorted(by: {$0.rawValue > $1.rawValue})
+                
+                let factNumber = quizArray
+                    .flatMap { $0.questions }
+                    .map { $0.question }
+                    .filter { $0.contains("NBA")}
+                    .count
+                
+                factText.text = "There are \(factNumber) questions that contain the word \"NBA\""
+                
+                collectionView.reloadData()
+                
+            }
         }
         
-        categories = Array(Set(quizArray.map({$0.category}))).sorted(by: {$0.rawValue > $1.rawValue})
-        
-        let factNumber = quizArray
-            .flatMap { $0.questions }
-            .map { $0.question }
-            .filter { $0.contains("NBA")}
-            .count
-        
-        factText.text = "There are \(factNumber) questions that contain the word \"NBA\""
-        
-        collectionView.reloadData()
     }
     
     private func styleView() {
@@ -180,7 +193,6 @@ extension QuizzesViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let quiz = quizzes[categories[indexPath.section].rawValue]?[indexPath.row] else { return }
         router.showQuizController(quiz: quiz)
-        // Logic when cell is selected
     }
 }
 
@@ -214,7 +226,7 @@ class QuizCell: UICollectionViewCell {
     var quiz: Quiz? {
         didSet {
             guard quiz != nil else { return }
-            quizDescription.text = quiz!.description  + "\n" + String(quiz?.level ?? 0) + "/3"
+            quizDescription.text = quiz!.description  + "\nDifficulty: " + String(quiz?.level ?? 0) + "/3"
             quizTitle.text = quiz?.title
         }
     }
@@ -261,7 +273,6 @@ class QuizCell: UICollectionViewCell {
             $0.bottom.equalToSuperview()
             $0.trailing.equalToSuperview()
         }
-        
     }
 }
 

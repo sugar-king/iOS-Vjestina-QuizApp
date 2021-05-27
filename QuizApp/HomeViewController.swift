@@ -1,10 +1,3 @@
-//
-//  HomeViewController.swift
-//  QuizApp
-//
-//  Created by five on 13.05.2021..
-//
-
 import Foundation
 import UIKit
 

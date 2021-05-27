@@ -6,6 +6,7 @@ class QuizViewController : UIViewController {
     
     let router: AppRouterProtocol
     let quiz: Quiz
+    let startingTime = Date(timeIntervalSince1970: Date().timeIntervalSince1970)
     
     var currentQuestion = 1
     
@@ -71,7 +72,7 @@ class QuizViewController : UIViewController {
                                       execute: { [self] in
                                         results += correct ? 1 : 0
                                         if currentQuestion == quiz.questions.count {
-                                            router.showQuizResults(correct: results, of: quiz.questions.count)
+                                            router.showQuizResults(quizId: quiz.id, correct: results, of: quiz.questions.count, time: Date().timeIntervalSince(startingTime))
                                             return
                                         } else {
                                             currentQuestion += 1

@@ -6,11 +6,13 @@ protocol AppRouterProtocol {
     func showHomeController()
     func returnToHomeController()
     func showQuizController(quiz: Quiz)
-    func showQuizResults(correct: Int, of: Int)
+    func showQuizResults(quizId: Int,correct: Int, of: Int, time: TimeInterval)
     func showLogin()
+    func showLeaderborder(quizId: Int)
+    func hideLeaderborder()
 }
 class AppRouter: AppRouterProtocol {
-   
+    
     
     private var navigationController: UINavigationController!
     
@@ -36,8 +38,8 @@ class AppRouter: AppRouterProtocol {
         navigationController.pushViewController(vc, animated: true)
     }
     
-    func showQuizResults(correct: Int, of: Int) {
-        let resultsVC = QuizResultsViewController(correct: correct, of: of, router: self)
+    func showQuizResults(quizId: Int, correct: Int, of: Int, time: TimeInterval) {
+        let resultsVC = QuizResultsViewController(router: self, quizId: quizId, correct: correct,  of: of, time: time)
         navigationController.pushViewController(resultsVC, animated: true)
     }
     func returnToHomeController() {
@@ -48,4 +50,15 @@ class AppRouter: AppRouterProtocol {
         let login = LoginViewController(router: self)
         navigationController.setViewControllers([login], animated: true)
     }
+    
+    func showLeaderborder(quizId: Int) {
+        let board = LeaderboardViewController(router: self, quizId: quizId)
+        board.modalPresentationStyle = .fullScreen
+        navigationController.present(board, animated: true, completion: nil)
+    }
+    
+    func hideLeaderborder() {
+        navigationController.dismiss(animated: true, completion: nil)
+    }
+
 }

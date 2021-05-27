@@ -82,8 +82,8 @@ class LoginViewController: UIViewController {
     @objc private func login() {
         
         dataService.login(email: emailField.text!, password: passwordField.text!) {
-            response in
-
+            [weak self] response in
+            guard let self = self else { return }
             switch response{
             case .success:
                 DispatchQueue.main.async {

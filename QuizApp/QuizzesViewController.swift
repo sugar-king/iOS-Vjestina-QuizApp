@@ -99,7 +99,8 @@ class QuizzesViewController: UIViewController {
     }
     
     @objc private func loadQuizzes() {
-        dataService.fetchQuizzes() { quizArray, error in
+        dataService.fetchQuizzes() { [weak self] quizArray, error in
+            guard let self = self else { return }
             if error != nil && error == .clientError {
                 DispatchQueue.main.async { [self] in
                     let alert = UIAlertController(title: "No internet connection!", message: "Could not load quizzes.", preferredStyle: .alert)
@@ -108,18 +109,18 @@ class QuizzesViewController: UIViewController {
                 }
                 return
             }
-            DispatchQueue.main.async { [self] in
-                collectionView.backgroundColor = .white
-                quizzes = Dictionary()
+            DispatchQueue.main.async {
+                self.collectionView.backgroundColor = .white
+                self.quizzes = Dictionary()
                 guard let quizArray = quizArray else {return}
                 for quiz in quizArray {
-                    if quizzes[quiz.category.rawValue] == nil {
-                        quizzes[quiz.category.rawValue] = Array()
+                    if self.quizzes[quiz.category.rawValue] == nil {
+                        self.quizzes[quiz.category.rawValue] = Array()
                     }
-                    quizzes[quiz.category.rawValue]?.append(quiz)
+                    self.quizzes[quiz.category.rawValue]?.append(quiz)
                 }
                 
-                categories = Array(Set(quizArray.map({$0.category}))).sorted(by: {$0.rawValue > $1.rawValue})
+                self.categories = Array(Set(quizArray.map({$0.category}))).sorted(by: {$0.rawValue > $1.rawValue})
                 
                 let factNumber = quizArray
                     .flatMap { $0.questions }
@@ -127,9 +128,9 @@ class QuizzesViewController: UIViewController {
                     .filter { $0.contains("NBA")}
                     .count
                 
-                factText.text = "There are \(factNumber) questions that contain the word \"NBA\""
+                self.factText.text = "There are \(factNumber) questions that contain the word \"NBA\""
                 
-                collectionView.reloadData()
+                self.collectionView.reloadData()
                 
             }
         }

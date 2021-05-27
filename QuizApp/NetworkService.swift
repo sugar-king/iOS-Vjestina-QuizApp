@@ -34,16 +34,19 @@ class NetworkService : NetworkServiceProtocol {
     }
     
     func login(email: String, password: String, onCompletion: @escaping (LoginStatus)->Void) {
-        let reach = Reachability.init(hostName: baseUrl)
-        if !(reach?.isReachable() ?? false) {
+        guard let reachability = Reachability.init(hostName: baseUrl),
+              reachability.isReachable()
+        else {
             onCompletion(.error(1, "No network"))
             return
         }
         
-        var url = URLComponents(string: "\(baseUrl)/session")!
-        url.queryItems = [URLQueryItem(name: "username", value: email), URLQueryItem(name: "password", value: password)]
+        guard var urlComp = URLComponents(string: "\(baseUrl)/session") else { return }
         
-        var request = URLRequest(url: url.url!)
+        urlComp.queryItems = [URLQueryItem(name: "username", value: email), URLQueryItem(name: "password", value: password)]
+        
+        guard let url = urlComp.url else { return }
+        var request = URLRequest(url: url )
         request.httpMethod = "POST"
         
         executeUrlRequest(request) { (result: Result<LoginData, RequestError>) in

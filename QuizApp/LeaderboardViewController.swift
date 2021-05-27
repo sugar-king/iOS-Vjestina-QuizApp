@@ -88,8 +88,8 @@ class LeaderboardViewController : UIViewController {
             $0.bottom.equalToSuperview()
         }
         
-        networkService.fetchLeaderboard(quizId: quizId) { results, error in
-            guard let results = results else { return }
+        networkService.fetchLeaderboard(quizId: quizId) { [weak self] results, error in
+            guard let results = results, let self = self else { return }
             self.results = Array(results.prefix(10))
             DispatchQueue.main.async {
                 self.table.reloadData()
@@ -120,9 +120,6 @@ class LeaderboardViewController : UIViewController {
         }
     }
     
-    func fillTable(results: [LeaderboardResult]?, error: RequestError?) -> Void {
-        
-    }
     
     @objc
     private func hideLeaderborder(_ sender: UIButton) {

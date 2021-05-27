@@ -63,8 +63,9 @@ class NetworkService : NetworkServiceProtocol {
     
     
     func fetchQuizzes(onCompletion: @escaping ([Quiz]?, RequestError?) -> Void) {
-        let reach = Reachability.init(hostName: baseUrl)
-        if !(reach?.isReachable() ?? false) {
+        guard let reachability = Reachability.init(hostName: baseUrl),
+              reachability.isReachable()
+        else {
             onCompletion([], .clientError)
             return
         }
@@ -84,8 +85,9 @@ class NetworkService : NetworkServiceProtocol {
     }
     
     func uploadQuizResults(quizResult: QuizResult) {
-        let reach = Reachability.init(hostName: baseUrl)
-        if !(reach?.isReachable() ?? false) {
+        guard let reachability = Reachability.init(hostName: baseUrl),
+              reachability.isReachable()
+        else {
             return
         }
         
@@ -109,16 +111,19 @@ class NetworkService : NetworkServiceProtocol {
     }
     
     func fetchLeaderboard(quizId: Int, onCompletion: @escaping ([LeaderboardResult]?, RequestError?) -> Void) {
-        let reach = Reachability.init(hostName: baseUrl)
-        if !(reach?.isReachable() ?? false) {
+        guard let reachability = Reachability.init(hostName: baseUrl),
+              reachability.isReachable()
+        else {
             onCompletion(nil, .clientError)
             return
         }
         
-        guard var url = URLComponents(string: "\(baseUrl)/score") else {return}
-        url.queryItems = [URLQueryItem(name: "quiz_id", value: String(quizId))]
+        guard var urlComp = URLComponents(string: "\(baseUrl)/score") else {return}
+        urlComp.queryItems = [URLQueryItem(name: "quiz_id", value: String(quizId))]
 
-        var request = URLRequest(url: url.url!)
+        guard let url = urlComp.url else { return }
+
+        var request = URLRequest(url: url)
         request.setValue(UserDefaults.standard.string(forKey: "token"), forHTTPHeaderField: "Authorization")
         request.httpMethod = "GET"
         

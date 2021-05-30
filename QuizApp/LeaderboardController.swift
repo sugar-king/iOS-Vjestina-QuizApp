@@ -1,14 +1,7 @@
-//
-//  LeaderboardViewController.swift
-//  QuizApp
-//
-//  Created by five on 16.05.2021..
-//
-
 import Foundation
 import UIKit
 
-class LeaderboardViewController : UIViewController {
+class LeaderboardController : UIViewController {
     let cellIdentifier = "leaderborderCell"
     let router: AppRouterProtocol
     let networkService: NetworkServiceProtocol = NetworkService()
@@ -132,7 +125,7 @@ class LeaderboardViewController : UIViewController {
     }
 }
 
-extension LeaderboardViewController : UITableViewDataSource {
+extension LeaderboardController : UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }

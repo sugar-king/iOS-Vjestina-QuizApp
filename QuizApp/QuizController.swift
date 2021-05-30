@@ -2,10 +2,10 @@ import Foundation
 import UIKit
 
 
-class QuizViewController : UIViewController {
+class QuizController : UIViewController {
     
     let router: AppRouterProtocol
-    let quiz: Quiz
+    let quiz: QuizViewModel
     let startingTime = Date(timeIntervalSince1970: Date().timeIntervalSince1970)
     
     var currentQuestion = 1
@@ -15,7 +15,7 @@ class QuizViewController : UIViewController {
     var questionPages: UIPageViewController!
     var results = 0
     
-    init(router: AppRouterProtocol, quiz: Quiz) {
+    init(router: AppRouterProtocol, quiz: QuizViewModel) {
         self.router = router
         self.quiz = quiz
         super.init(nibName: nil, bundle: nil)
@@ -51,7 +51,7 @@ class QuizViewController : UIViewController {
             $0.height.equalTo(15)
             $0.centerX.equalToSuperview()
         }
-        questionPages = QuizPageViewController(quiz, answerQuestion)
+        questionPages = QuizPageController(quiz, answerQuestion)
         view.addSubview(questionPages.view)
         addChild(questionPages)
         questionPages.didMove(toParent: self)

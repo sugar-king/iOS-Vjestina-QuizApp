@@ -25,7 +25,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         navigationController.setNavigationBarHidden(true, animated: false)
         window?.rootViewController = navigationController
         window?.makeKeyAndVisible()
-        let router = AppRouter(navigationController: navigationController)
+        
+        let networkDS = QuizNetworkDataSource(networkService: NetworkService())
+        let coreDataContext = CoreDataStack(modelName: "QuizApp").managedContext
+        print(coreDataContext.debugDescription)
+        let coreDataDS = QuizDatabaseDataSource(coreDataContext: coreDataContext)
+        let quizRepository = QuizRepository(networkDataSource: networkDS, coreDataSource: coreDataDS)
+        let useCase = QuizUseCase(quizRepository: quizRepository)
+        
+        let router = AppRouter(navigationController: navigationController, quizUseCase: useCase)
         router.setStartScreen(in: window)
     }
 

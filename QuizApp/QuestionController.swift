@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-class QuestionViewController : UIViewController {
+class QuestionController : UIViewController {
     let question: Question!
     let answerQuestion: (_ correctly:Bool) -> ()
     

@@ -5,7 +5,7 @@ protocol AppRouterProtocol {
     func setStartScreen(in window: UIWindow?)
     func showHomeController()
     func returnToHomeController()
-    func showQuizController(quiz: Quiz)
+    func showQuizController(quiz: QuizViewModel)
     func showQuizResults(quizId: Int,correct: Int, of: Int, time: TimeInterval)
     func showLogin()
     func showLeaderborder(quizId: Int)
@@ -13,33 +13,35 @@ protocol AppRouterProtocol {
 }
 class AppRouter: AppRouterProtocol {
     
+    private let quizUseCase: QuizUseCase
+    private let navigationController: UINavigationController!
     
-    private var navigationController: UINavigationController!
-    
-    init(navigationController: UINavigationController) {
+    init(navigationController: UINavigationController, quizUseCase: QuizUseCase) {
         self.navigationController = navigationController
+        self.quizUseCase = quizUseCase
     }
     func setStartScreen(in window: UIWindow?) {
-        let vc = LoginViewController(router: self)
+         let vc = LoginController(router: self)
+//        let vc = QuizzesController(router: self, useCase: quizUseCase)
         navigationController.pushViewController(vc, animated: false)
         window?.rootViewController = navigationController
         window?.makeKeyAndVisible()
     }
     
     func showHomeController() {
-        let vc = HomeViewController(router: self)
+        let vc = HomeController(router: self, useCase: quizUseCase)
         navigationController.setViewControllers([vc], animated: true)
     }
     
-    func showQuizController(quiz: Quiz) {
+    func showQuizController(quiz: QuizViewModel) {
         navigationController.navigationBar.isHidden = false
         navigationController.isNavigationBarHidden = false
-        let vc = QuizViewController(router: self, quiz: quiz)
+        let vc = QuizController(router: self, quiz: quiz)
         navigationController.pushViewController(vc, animated: true)
     }
     
     func showQuizResults(quizId: Int, correct: Int, of: Int, time: TimeInterval) {
-        let resultsVC = QuizResultsViewController(router: self, quizId: quizId, correct: correct,  of: of, time: time)
+        let resultsVC = QuizResultsController(router: self, quizId: quizId, correct: correct,  of: of, time: time)
         navigationController.pushViewController(resultsVC, animated: true)
     }
     func returnToHomeController() {
@@ -47,12 +49,12 @@ class AppRouter: AppRouterProtocol {
     }
     
     func showLogin() {
-        let login = LoginViewController(router: self)
+        let login = LoginController(router: self)
         navigationController.setViewControllers([login], animated: true)
     }
     
     func showLeaderborder(quizId: Int) {
-        let board = LeaderboardViewController(router: self, quizId: quizId)
+        let board = LeaderboardController(router: self, quizId: quizId)
         board.modalPresentationStyle = .fullScreen
         navigationController.present(board, animated: true, completion: nil)
     }

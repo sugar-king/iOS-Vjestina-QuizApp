@@ -1,25 +1,26 @@
 import UIKit
 import SnapKit
 
-class QuizzesViewController: UIViewController {
+class QuizzesController: UIViewController {
     
     let cellIdentifier = "cellId"
     let headerID = "Header"
     let backgroundColor = UIColor.systemBlue
     
-    var loadButton: UIButton!
     var factLabel: UILabel!
     var factText: UILabel!
     var collectionView: UICollectionView!
     
     var dataService = NetworkService()
-    var quizzes: [String: [Quiz]] = [:]
-    var categories: [QuizCategory] = []
+    let quizUseCase: QuizUseCase
+    var quizzes: [String: [QuizViewModel]] = [:]
+    var categories: [String] = []
     
     let router: AppRouterProtocol
     
-    init(router: AppRouterProtocol) {
+    init(router: AppRouterProtocol, useCase: QuizUseCase) {
         self.router = router
+        self.quizUseCase = useCase
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -29,23 +30,26 @@ class QuizzesViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        getQuizzes()
+
         buildView()
         defineLayoutForViews()
         styleView()
+        do {
+            try refreshQuizzes()
+        } catch {
+            DispatchQueue.main.async { [weak self] in
+                let alert = UIAlertController(title: "No internet connection!", message: "Could not load new quizzes.", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                self?.present(alert, animated: true, completion: nil)
+            }
+        }
+        
     }
     
     private func defineLayoutForViews() {
-        loadButton.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(60)
-            $0.centerX.equalToSuperview()
-            $0.leading.trailing.equalToSuperview().inset(50)
-            $0.height.equalTo(40)
-        }
-        loadButton.layer.cornerRadius = 20
-        
         factLabel.snp.makeConstraints {
-            $0.top.equalTo(loadButton.snp.bottom).offset(20)
+            $0.top.equalToSuperview().offset(60)
             $0.centerX.equalToSuperview()
             $0.leading.trailing.equalToSuperview().inset(50)
         }
@@ -60,16 +64,11 @@ class QuizzesViewController: UIViewController {
             $0.top.equalTo(factText.snp.bottom).offset(20)
             $0.bottom.equalToSuperview()
             $0.centerX.equalToSuperview()
-            $0.leading.trailing.equalToSuperview().inset(10)
+            $0.leading.trailing.equalToSuperview()
         }        
     }
     
     private func buildView() {
-        loadButton = UIButton()
-        view.addSubview(loadButton)
-        loadButton.setTitle("Get Quiz", for: .normal)
-        loadButton.addTarget(self, action: #selector(loadQuizzes), for: .touchUpInside)
-        
         factLabel = UILabel()
         factLabel.text = "Fun Fact"
         factLabel.font = factLabel.font.withSize(30)
@@ -81,13 +80,13 @@ class QuizzesViewController: UIViewController {
         
         let flowLayout = UICollectionViewFlowLayout()
         flowLayout.scrollDirection = .vertical
-        flowLayout.headerReferenceSize = CGSize(width: 200, height: 40)
+        flowLayout.headerReferenceSize = CGSize(width: 200, height: 50)
         
         collectionView = UICollectionView(frame:.zero, collectionViewLayout: flowLayout)
         view.addSubview(collectionView)
         
         collectionView.register(QuizCell.self, forCellWithReuseIdentifier: cellIdentifier)
-        self.collectionView.register(UICollectionReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: self.headerID)
+        collectionView.register(UICollectionReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: self.headerID)
         
         collectionView.dataSource = self
         collectionView.delegate = self
@@ -98,67 +97,57 @@ class QuizzesViewController: UIViewController {
         navigationController?.navigationBar.isHidden = true
     }
     
-    @objc private func loadQuizzes() {
-        dataService.fetchQuizzes() { [weak self] quizArray, error in
-            guard let self = self else { return }
-            if error != nil && error == .clientError {
-                DispatchQueue.main.async { [self] in
-                    let alert = UIAlertController(title: "No internet connection!", message: "Could not load quizzes.", preferredStyle: .alert)
-                    alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-                    self.present(alert, animated: true, completion: nil)
-                }
-                return
-            }
-            DispatchQueue.main.async {
-                self.collectionView.backgroundColor = .white
-                self.quizzes = Dictionary()
-                guard let quizArray = quizArray else {return}
-                for quiz in quizArray {
-                    if self.quizzes[quiz.category.rawValue] == nil {
-                        self.quizzes[quiz.category.rawValue] = Array()
-                    }
-                    self.quizzes[quiz.category.rawValue]?.append(quiz)
-                }
-                
-                self.categories = Array(Set(quizArray.map({$0.category}))).sorted(by: {$0.rawValue > $1.rawValue})
-                
-                let factNumber = quizArray
-                    .flatMap { $0.questions }
-                    .map { $0.question }
-                    .filter { $0.contains("NBA")}
-                    .count
-                
-                self.factText.text = "There are \(factNumber) questions that contain the word \"NBA\""
-                
-                self.collectionView.reloadData()
-                
-            }
+    private func refreshQuizzes() throws {
+        try quizUseCase.refreshData() { [weak self] in
+            self?.getQuizzes()
         }
-        
     }
+    
+    @objc private func getQuizzes() {
+        let array = quizUseCase.getQuizzes().map { QuizViewModel($0)}
+        quizzes = Dictionary(grouping: array, by: { $0.category })
+        categories = Array(self.quizzes.keys).sorted()
+        let factNumber = array
+            .flatMap { $0.questions }
+            .map { $0.question }
+            .filter { $0.contains("NBA")}
+            .count
+        DispatchQueue.main.async {
+            self.collectionView.backgroundColor = .white
+            
+            
+            
+            self.factText.text = "There are \(factNumber) questions that contain the word \"NBA\""
+            
+            self.collectionView.reloadData()
+        }
+    }
+        
+    
+   
     
     private func styleView() {
         view.backgroundColor = backgroundColor
-        
-        loadButton.backgroundColor = .white
-        loadButton.setTitleColor(backgroundColor, for: .normal)
         
         collectionView.backgroundColor = backgroundColor
     }
 }
 
-extension QuizzesViewController: UICollectionViewDataSource {
+extension QuizzesController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        quizzes[categories[section].rawValue]?.count ?? 0
+        if categories.count == 0 {
+            return 0
+        }
+        return quizzes[categories[section]]?.count ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(
             withReuseIdentifier: cellIdentifier,
             for: indexPath) as! QuizCell
-        let quiz = quizzes[categories[indexPath.section].rawValue]?[indexPath.row]
+        let quiz = quizzes[categories[indexPath.section]]?[indexPath.row]
         
-        let image = [UIImage(systemName: "questionmark.square.fill"), UIImage(systemName: "questionmark.square")][indexPath.row % 2]
+        let image = quiz?.image
         cell.quiz = quiz
         cell.image = image
         return cell
@@ -170,7 +159,7 @@ extension QuizzesViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ tableView: UICollectionView, titleForHeaderInSection section: Int) -> String? {
-        return categories[section].rawValue.uppercased()
+        return categories[section].uppercased()
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -178,10 +167,10 @@ extension QuizzesViewController: UICollectionViewDataSource {
         if kind == UICollectionView.elementKindSectionHeader {
             v = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerID, for: indexPath)
             if v.subviews.count == 0 {
-                v.addSubview(UILabel(frame:CGRect(x: 0,y: 0,width: 200,height: 40)))
+                v.addSubview(UILabel(frame:CGRect(x: 0,y: 5,width: 200,height: 40)))
             }
             let lab = v.subviews[0] as! UILabel
-            lab.text = categories[indexPath.section].rawValue.uppercased()
+            lab.text = categories[indexPath.section].uppercased()
             lab.font = lab.font.withSize(30)
             lab.textAlignment = .center
         }
@@ -190,14 +179,14 @@ extension QuizzesViewController: UICollectionViewDataSource {
     
 }
 
-extension QuizzesViewController: UICollectionViewDelegate {
+extension QuizzesController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard let quiz = quizzes[categories[indexPath.section].rawValue]?[indexPath.row] else { return }
+        guard let quiz = quizzes[categories[indexPath.section]]?[indexPath.row] else { return }
         router.showQuizController(quiz: quiz)
     }
 }
 
-extension QuizzesViewController: UICollectionViewDelegateFlowLayout {
+extension QuizzesController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout:
                             UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: collectionView.frame.width, height: 200)
@@ -224,10 +213,10 @@ class QuizCell: UICollectionViewCell {
         return qt
     }()
     
-    var quiz: Quiz? {
+    var quiz: QuizViewModel? {
         didSet {
             guard quiz != nil else { return }
-            quizDescription.text = quiz!.description  + "\nDifficulty: " + String(quiz?.level ?? 0) + "/3"
+            quizDescription.text = quiz?.description
             quizTitle.text = quiz?.title
         }
     }

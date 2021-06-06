@@ -7,7 +7,7 @@ class NetworkService : NetworkServiceProtocol {
     
     func executeUrlRequest<T: Decodable>(_ request: URLRequest, completionHandler:
                                             @escaping (Result<T, RequestError>) -> Void) {
-        let dataTask = URLSession.shared.dataTask(with: request) { data, response,
+        let dataTask = try URLSession.shared.dataTask(with: request) { data, response,
                                                                    err in
             
             guard err == nil else {
@@ -62,12 +62,11 @@ class NetworkService : NetworkServiceProtocol {
     }
     
     
-    func fetchQuizzes(onCompletion: @escaping ([Quiz]?, RequestError?) -> Void) {
+    func fetchQuizzes(onCompletion: @escaping ([Quiz]?, RequestError?) -> Void) throws {
         guard let reachability = Reachability.init(hostName: baseUrl),
               reachability.isReachable()
         else {
-            onCompletion([], .clientError)
-            return
+            throw RequestError.clientError
         }
         
         guard let url = URL(string: "\(baseUrl)/quizzes") else {return}

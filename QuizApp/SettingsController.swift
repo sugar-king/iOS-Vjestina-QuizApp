@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-class SettingsViewController : UIViewController {
+class SettingsController : UIViewController {
     var unLabel: UILabel!
     var usernameLabel: UILabel!
     var logOutBtn: UIButton!
@@ -51,7 +51,11 @@ class SettingsViewController : UIViewController {
         logOutBtn.snp.makeConstraints {
             $0.bottom.equalToSuperview().inset(100)
             $0.centerX.equalToSuperview()
+            $0.width.equalTo(100)
+            $0.height.equalTo(50)
         }
+        logOutBtn.layer.cornerRadius = 25
+        
     }
     
     @objc

@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-class QuizResultsViewController : UIViewController {
+class QuizResultsController : UIViewController {
     let router: AppRouterProtocol
     let networkService: NetworkServiceProtocol = NetworkService()
     

@@ -1,16 +1,16 @@
 import Foundation
 import UIKit
 
-class QuizPageViewController : UIPageViewController {
-    let quiz: Quiz
-    private var controllers: [QuestionViewController]
+class QuizPageController : UIPageViewController {
+    let quiz: QuizViewModel
+    private var controllers: [QuestionController]
     private var displayedIndex = 0
     let updateProgress: (_ :Bool) -> ()
     
-    init(_ quiz: Quiz, _ update: @escaping (_ :Bool) -> ()) {
+    init(_ quiz: QuizViewModel, _ update: @escaping (_ :Bool) -> ()) {
         self.quiz = quiz
         self.updateProgress = update
-        controllers = [QuestionViewController]()
+        controllers = [QuestionController]()
         super.init(transitionStyle: .scroll, navigationOrientation: .horizontal, options: .none)
     }
     
@@ -24,7 +24,7 @@ class QuizPageViewController : UIPageViewController {
         view.backgroundColor = .systemBlue
         
         for i in 0...quiz.questions.count-1 {
-            let question = QuestionViewController(quiz.questions[i], answerQuestion(_:))
+            let question = QuestionController(quiz.questions[i], answerQuestion(_:))
             controllers.append(question)
         }
         

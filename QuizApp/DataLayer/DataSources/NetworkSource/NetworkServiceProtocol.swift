@@ -3,7 +3,7 @@ import Foundation
 protocol NetworkServiceProtocol {
     func login(email: String, password: String, onCompletion: @escaping (LoginStatus)->Void)
 
-    func fetchQuizzes(onCompletion: @escaping ([Quiz]?, RequestError?) -> Void)
+    func fetchQuizzes(onCompletion: @escaping ([Quiz]?, RequestError?) -> Void) throws
     
     func uploadQuizResults(quizResult: QuizResult)
     

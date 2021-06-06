@@ -1,14 +1,7 @@
-//
-//  LoginViewController.swift
-//  QuizApp
-//
-//  Created by five on 13.04.2021..
-//
-
 import UIKit
 import SnapKit
 
-class LoginViewController: UIViewController {
+class LoginController: UIViewController {
     
     var titleLabel: UILabel!
     var stackView: UIStackView!
@@ -80,7 +73,7 @@ class LoginViewController: UIViewController {
     }
     
     @objc private func login() {
-        
+        loginButton.isEnabled = false
         dataService.login(email: emailField.text!, password: passwordField.text!) {
             [weak self] response in
             guard let self = self else { return }
@@ -95,12 +88,15 @@ class LoginViewController: UIViewController {
                         let alert = UIAlertController(title: "No network connection.", message: "", preferredStyle: .alert)
                         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
                         self.present(alert, animated: true, completion: nil)
+                        self.loginButton.isEnabled = true
+
                     }
                 } else {
                     DispatchQueue.main.async {
-                        let alert = UIAlertController(title: "Login failed", message: "", preferredStyle: .alert)
+                        let alert = UIAlertController(title: "Login failed.", message: "", preferredStyle: .alert)
                         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
                         self.present(alert, animated: true, completion: nil)
+                        self.loginButton.isEnabled = true
                     }
                 }
             }
@@ -157,7 +153,7 @@ class LoginViewController: UIViewController {
     }
 }
 
-extension LoginViewController: UITextFieldDelegate {
+extension LoginController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         return true
     }

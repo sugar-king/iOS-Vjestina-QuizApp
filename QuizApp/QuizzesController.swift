@@ -115,8 +115,6 @@ class QuizzesController: UIViewController {
         DispatchQueue.main.async {
             self.collectionView.backgroundColor = .white
             
-            
-            
             self.factText.text = "There are \(factNumber) questions that contain the word \"NBA\""
             
             self.collectionView.reloadData()

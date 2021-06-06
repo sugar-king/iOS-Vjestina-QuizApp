@@ -83,7 +83,9 @@ class LeaderboardController : UIViewController {
         
         networkService.fetchLeaderboard(quizId: quizId) { [weak self] results, error in
             guard let results = results, let self = self else { return }
-            self.results = Array(results.prefix(10))
+            self.results = Array(results
+                                    .sorted(by: {Double($0.score ?? "0")! > Double($1.score ?? "0")!})
+                                    .prefix(10))
             DispatchQueue.main.async {
                 self.table.reloadData()
             }

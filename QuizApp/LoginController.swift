@@ -80,7 +80,7 @@ class LoginController: UIViewController {
             switch response{
             case .success:
                 DispatchQueue.main.async {
-                    self.router.showHomeController()
+                    self.finishLogin()
                 }
             case .error(let code, _):
                 if code == 1 {
@@ -151,6 +151,7 @@ class LoginController: UIViewController {
             
         }
     }
+   
 }
 
 extension LoginController: UITextFieldDelegate {

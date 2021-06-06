@@ -27,9 +27,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.makeKeyAndVisible()
         
         let networkDS = QuizNetworkDataSource(networkService: NetworkService())
+
         let coreDataContext = CoreDataStack(modelName: "QuizApp").managedContext
-        print(coreDataContext.debugDescription)
         let coreDataDS = QuizDatabaseDataSource(coreDataContext: coreDataContext)
+
         let quizRepository = QuizRepository(networkDataSource: networkDS, coreDataSource: coreDataDS)
         let useCase = QuizUseCase(quizRepository: quizRepository)
         

@@ -176,26 +176,26 @@ extension SearchQuizViewController: UICollectionViewDelegateFlowLayout {
 }
 
 extension SearchQuizViewController: UISearchBarDelegate {
-    func searchBarTextDidBeginEditing(searchBar: UISearchBar) {
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
         
         
     }
     
-    func searchBarTextDidEndEditing(searchBar: UISearchBar) {
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
         let filter = FilterSettings(searchText: searchBar.text)
 
         filterQuizzes(filter: filter)
         collectionView.reloadData()
     }
     
-    func searchBarCancelButtonClicked(searchBar: UISearchBar) {
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         let filter = FilterSettings(searchText: searchBar.text)
 
         filterQuizzes(filter: filter)
         collectionView.reloadData()
     }
     
-    func searchBarSearchButtonClicked(searchBar: UISearchBar) {
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         let filter = FilterSettings(searchText: searchBar.text)
 
         filterQuizzes(filter: filter)
